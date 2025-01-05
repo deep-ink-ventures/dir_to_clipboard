@@ -96,6 +96,9 @@ When using recursive mode with a filter:
 - `clap` - Command-line argument parsing
 - `glob` - File pattern matching
 
+### Dev Dependencieds
+- `tempfile` - to have some files in tests
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
