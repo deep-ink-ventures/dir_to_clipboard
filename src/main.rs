@@ -128,3 +128,118 @@ fn main() -> Result<()> {
     
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs::{File, create_dir};
+    use std::io::Write;
+    use tempfile::tempdir;
+
+    #[test]
+    fn test_should_process_file_no_filter() {
+        let path = Path::new("example.rs");
+        assert!(should_process_file(path, None));
+    }
+
+    #[test]
+    fn test_should_process_file_with_matching_filter() {
+        let pattern = Pattern::new("*.rs").unwrap();
+        let path = Path::new("main.rs");
+        assert!(should_process_file(path, Some(&pattern)));
+    }
+
+    #[test]
+    fn test_should_process_file_with_non_matching_filter() {
+        let pattern = Pattern::new("*.rs").unwrap();
+        let path = Path::new("main.txt");
+        assert!(!should_process_file(path, Some(&pattern)));
+    }
+
+    #[test]
+    fn test_directory_has_matching_files() {
+        let dir = tempdir().unwrap();
+        let file_path = dir.path().join("test.rs");
+        File::create(&file_path).unwrap();
+
+        let pattern = Pattern::new("*.rs").unwrap();
+        assert!(directory_has_matching_files(dir.path(), Some(&pattern)));
+    }
+
+    #[test]
+    fn test_directory_has_no_matching_files() {
+        let dir = tempdir().unwrap();
+        let file_path = dir.path().join("test.txt");
+        File::create(&file_path).unwrap();
+
+        let pattern = Pattern::new("*.rs").unwrap();
+        assert!(!directory_has_matching_files(dir.path(), Some(&pattern)));
+    }
+
+    #[test]
+    fn test_read_file_contents() {
+        let dir = tempdir().unwrap();
+        let file_path = dir.path().join("testfile.txt");
+        let mut file = File::create(&file_path).unwrap();
+        writeln!(file, "Hello, world!").unwrap();
+
+        let contents = read_file_contents(&file_path).unwrap();
+        assert_eq!(contents.trim(), "Hello, world!");
+    }
+
+    #[test]
+    fn test_read_file_contents_nonexistent_file() {
+        // Reading a non-existent file should return an error
+        let dir = tempdir().unwrap();
+        let file_path = dir.path().join("does_not_exist.txt");
+        let result = read_file_contents(&file_path);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_read_file_contents_directory_instead_of_file() {
+        // Reading a directory should return an error
+        let dir = tempdir().unwrap();
+        let result = read_file_contents(dir.path());
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_get_directory_listing_valid_path() {
+        let dir = tempdir().unwrap();
+        // Create a file so listing isn't empty
+        let file_path = dir.path().join("testfile.txt");
+        File::create(&file_path).unwrap();
+
+        // We expect some output (depends on OS, so just check non-empty success)
+        let listing = get_directory_listing(dir.path().to_str().unwrap());
+        assert!(listing.is_ok());
+        assert!(!listing.unwrap().is_empty());
+    }
+
+    #[test]
+    fn test_directory_has_matching_files_subdir() {
+        let dir = tempdir().unwrap();
+
+        // create subdirectory
+        let sub_path = dir.path().join("sub");
+        create_dir(&sub_path).unwrap();
+
+        // create file in subdirectory
+        let file_path = sub_path.join("test.rs");
+        File::create(&file_path).unwrap();
+
+        // pattern
+        let pattern = Pattern::new("*.rs").unwrap();
+
+        // now check
+        assert!(directory_has_matching_files(dir.path(), Some(&pattern)));
+    }
+
+    #[test]
+    fn test_invalid_filter_pattern() {
+        // An intentionally invalid pattern
+        let pattern = Pattern::new("[abc");
+        assert!(pattern.is_err());
+    }
+}
