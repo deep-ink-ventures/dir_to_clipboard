@@ -24,7 +24,7 @@ A fast and efficient command-line utility that copies directory contents and fil
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/dir_to_clipboard
+git clone https://github.com/deep-ink-ventures/dir_to_clipboard
 cd dir_to_clipboard
 
 # Build for release
