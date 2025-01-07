@@ -2,7 +2,7 @@
 
 # dir_to_clipboard
 
-A fast and efficient command-line utility that copies directory contents and file contents to your clipboard. Bring your GPT up to speed with your codebase fast.
+A simple command-line utility that copies directory contents and file contents to your clipboard. Bring your GPT up to speed with your codebase fast.
 
 ## Features
 
@@ -12,6 +12,8 @@ A fast and efficient command-line utility that copies directory contents and fil
 - 🔍 File pattern filtering (e.g., `*.rs`, `*.txt`)
 - 📋 Direct clipboard integration
 - 🚀 Fast and memory efficient
+- ✅ Base directory selection with `--base-dir`
+- 🔓 `.gitignore` support for ignoring files (toggleable with `--no-ignore`)
 
 ## Installation
 
@@ -19,6 +21,12 @@ A fast and efficient command-line utility that copies directory contents and fil
 
 - Rust and Cargo (if building from source)
 - A clipboard-compatible system (macOS, Linux with X11)
+- **Linux users**: Install `xsel` for clipboard functionality:
+  ```bash
+  sudo pacman -S xsel  # Arch Linux
+  sudo apt-get install xsel  # Debian/Ubuntu
+  sudo yum install xsel  # Red Hat/CentOS
+  ```
 
 ### Building from Source
 
@@ -56,8 +64,14 @@ dir_to_clipboard --filter "*.rs"
 # Combine options
 dir_to_clipboard --recursive --filter "*.rs"
 
+# Set base directory
+dir_to_clipboard --base-dir /path/to/dir
+
+# Disable .gitignore filtering
+dir_to_clipboard --no-ignore
+
 # Short form
-dir_to_clipboard -r -f "*.rs"
+dir_to_clipboard -r -f "*.rs" -d /path/to/dir --no-ignore
 ```
 
 ### Output Format
@@ -74,12 +88,14 @@ The copied content will be formatted as follows:
 
 ### Command-line Options
 
-| Option | Short | Description |
-|--------|-------|-------------|
-| `--recursive` | `-r` | Recursively process subdirectories |
-| `--filter <PATTERN>` | `-f` | Filter files by pattern (e.g., "*.rs") |
-| `--help` | `-h` | Show help message |
-| `--version` | `-V` | Show version information |
+| Option              | Short | Description                                      |
+|---------------------|-------|--------------------------------------------------|
+| `--base-dir <DIR>`  | `-d`  | Set the base directory (default: current dir)   |
+| `--recursive`       | `-r`  | Recursively process subdirectories              |
+| `--filter <PATTERN>`| `-f`  | Filter files by pattern (e.g., "*.rs")          |
+| `--no-ignore`       |       | Disable `.gitignore` filtering                  |
+| `--help`            | `-h`  | Show help message                               |
+| `--version`         | `-V`  | Show version information                        |
 
 ## Smart Directory Handling
 
@@ -95,9 +111,9 @@ When using recursive mode with a filter:
 - `anyhow` - Error handling
 - `clap` - Command-line argument parsing
 - `glob` - File pattern matching
-
-### Dev Dependencieds
-- `tempfile` - to have some files in tests
+- `gitignore` - `.gitignore` file handling
+- `xsel` (Linux) - Clipboard management
+- `tempfile` - For tests
 
 ## Contributing
 
@@ -111,3 +127,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 - The Rust community for excellent crates
 - Ferris the crab for being an awesome mascot 🦀;
+
